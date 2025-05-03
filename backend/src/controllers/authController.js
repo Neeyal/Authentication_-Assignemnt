@@ -11,15 +11,8 @@ const generateToken = (user) => {
   });
 };
 
-console.log(process.env.EMAIL_USER, "Email");
-console.log(process.env.EMAIL_PASS, "pass");
-
 const transporter  = nodemailer.createTransport({
    service: "gmail",
- 
-
-   // or your email provider
-  // true for port 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -83,22 +76,24 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Email not found" });
     }
 
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Invalid password" });
     }
 
     if (!user.isVerified) {
       return res.status(403).json({ error: "Please verify your email first" });
     }
-
+    if (user.role !== role) {
+      return res.status(401).json({ error: "You are not authorized to login" });
+    }
     const token = generateToken(user);
     res.json({
       token,

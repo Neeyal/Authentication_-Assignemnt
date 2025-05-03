@@ -11,6 +11,7 @@ export default function RegistrationForm({ role, title, loginPath }) {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const navigate = useNavigate();
     const registerUser = useAuthStore((state) => state.registerUser);
 
@@ -29,8 +30,6 @@ export default function RegistrationForm({ role, title, loginPath }) {
         if (!form.password) {
             newErrors.password = 'Password is required';
         } else if (!passwordRegex.test(form.password)) {
-            console.log(form.password);
-            console.log(passwordRegex.test(form.password));
             newErrors.password = 'Password must be at least 8 characters long and contain at least one letter and one number';
         }
 
@@ -53,16 +52,32 @@ export default function RegistrationForm({ role, title, loginPath }) {
 
         setIsLoading(true);
         try {
-            console.log(form);
-            console.log(role);
             await registerUser({ ...form, role });
-            navigate('/verify');
+            setShowSuccess(true);
+            // Wait for 2 seconds to show the success message
+            setTimeout(() => {
+                navigate('/verify-email', { state: { email: form.email } });
+            }, 2000);
         } catch (error) {
             setErrors(prev => ({ ...prev, submit: error.message }));
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (showSuccess) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
+                <div className="bg-white p-8 rounded-xl shadow-2xl w-96 text-center">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-800">Registration Successful!</h2>
+                    <p className="text-green-600 mb-4">✓ Your account has been created successfully</p>
+                    <p className="text-gray-600 mb-6">Please check your email for the verification code.</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-6"></div>
+                    <p className="text-sm text-gray-500">Redirecting to verification page...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">

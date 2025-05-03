@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import {  Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 export default function LoginForm({ role, title, registerPath }) {
@@ -9,7 +9,7 @@ export default function LoginForm({ role, title, registerPath }) {
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
+    const [showSuccess, setShowSuccess] = useState(false);
     const loginUser = useAuthStore((state) => state.loginUser);
 
     const validateForm = () => {
@@ -44,25 +44,31 @@ export default function LoginForm({ role, title, registerPath }) {
 
         setIsLoading(true);
         try {
-            const user = await loginUser(form);
+            const user = await loginUser({ ...form, role } );
             
             // Check if the user's role matches the login page role
             if (role === 'admin' && user.role !== 'admin') {
                 throw new Error('You are not allowed to login from here');
             }
             
-            // Navigate based on user role
-            if (user.role === 'admin') {
-                navigate('/admin-dashboard');
-            } else {
-                navigate('/customer-dashboard');
-            }
+            setShowSuccess(true);
         } catch (error) {
             setErrors(prev => ({ ...prev, submit: error.message }));
         } finally {
             setIsLoading(false);
         }
     };
+
+    if (showSuccess) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
+                <div className="bg-white p-8 rounded-xl shadow-2xl w-96 text-center">
+                    <h2 className="text-3xl font-bold mb-6 text-gray-800">Login Successful!</h2>
+                    <p className="text-green-600 mb-4">✓ You have successfully logged in</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">

@@ -1,16 +1,23 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 export default function EmailVerification() {
+    const location = useLocation();
     const [form, setForm] = useState({
-        email: '',
+        email: location.state?.email || '',
         code: ''
     });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    const { verifyEmail, currentUser } = useAuthStore();
+    const { verifyEmail } = useAuthStore();
+
+    useEffect(() => {
+        if (!form.email) {
+            navigate('/');
+        }
+    }, [form.email, navigate]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -44,16 +51,11 @@ export default function EmailVerification() {
 
         setIsLoading(true);
         try {
-            const result = await verifyEmail(form.email, form.code);
+            const result = await verifyEmail(form.code);
             if (result.error) {
                 setErrors(prev => ({ ...prev, submit: result.error }));
             } else {
-                // Navigate based on user role
-                if (currentUser?.role === 'admin') {
-                    navigate('/admin-dashboard');
-                } else {
-                    navigate('/customer-dashboard');
-                }
+                navigate('/verify');
             }
         } catch (error) {
             setErrors(prev => ({ ...prev, submit: error.message }));
@@ -77,11 +79,9 @@ export default function EmailVerification() {
                             placeholder="Email"
                             value={form.email}
                             onChange={handleChange}
-                            className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 ${
-                                errors.email ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            disabled
+                            className="w-full p-3 border rounded-lg bg-gray-100 text-gray-600"
                         />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                     </div>
                     <div>
                         <input
