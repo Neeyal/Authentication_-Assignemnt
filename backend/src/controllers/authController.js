@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const generateToken = (user) => {
   return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
@@ -8,13 +11,29 @@ const generateToken = (user) => {
   });
 };
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
+console.log(process.env.EMAIL_USER, "Email");
+console.log(process.env.EMAIL_PASS, "pass");
+
+const transporter  = nodemailer.createTransport({
+   service: "gmail",
+ 
+
+   // or your email provider
+  // true for port 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    pass: process.env.EMAIL_PASS,
   },
+
 });
+transporter.verify(function(err, success){
+  if(err){
+    console.log(err);
+
+  }else{
+    console.log("serbver is ready to take ur msg")
+  }
+})
 
 const register = async (req, res) => {
   console.log("create called");

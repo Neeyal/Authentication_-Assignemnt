@@ -8,13 +8,13 @@ export default function Home() {
                 <h1 className="text-3xl font-bold mb-6">Welcome to Auth Portal</h1>
                 <div className="space-y-4">
                     <Link
-                        to="/customer-panel"
+                        to="/customer-register"
                         className="block w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded shadow"
                     >
                         Customer Panel
                     </Link>
                     <Link
-                        to="/admin-panel"
+                        to="/admin-register"
                         className="block w-full bg-gray-700 hover:bg-gray-800 text-white py-3 rounded shadow"
                     >
                         Admin Panel

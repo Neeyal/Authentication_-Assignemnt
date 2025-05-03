@@ -4,7 +4,7 @@ const users = [];
 
 export const registerUser = ({ firstName, lastName, email, password, role }) => {
     const verificationCode = generateVerificationCode();
-    const newUser = { firstName, lastName, email, password, role, isVerified: false, verificationCode };
+    const newUser = { firstName, lastName, email, password, role };
     users.push(newUser);
     console.log(`Verification code for ${email}: ${verificationCode}`);
     return newUser;
